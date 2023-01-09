@@ -36,17 +36,21 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage {
     // NFT Variables
     uint256 private s_tokenCounter;
     uint256 internal constant MAX_CHANCE_VALUE = 100;
+    // Different URIs for different dogs
+    string[] internal s_dogTokenUris;
 
     constructor(
         address vrfCoordinatorV2,
         uint64 subscriptionId,
         bytes32 keyHash,
-        uint32 callbackGasLimit
+        uint32 callbackGasLimit,
+        string[3] memory dogTokenUris
     ) VRFConsumerBaseV2(vrfCoordinatorV2) ERC721("Random IPFS NFT", "RIN") {
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
         i_subscriptionId = subscriptionId;
         i_keyHash = keyHash;
         i_callbackGasLimit = callbackGasLimit;
+        s_dogTokenUris = dogTokenUris;
     }
 
     function requestNft() public returns (uint256 requestId) {
