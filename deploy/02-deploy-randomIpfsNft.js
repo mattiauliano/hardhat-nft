@@ -28,6 +28,15 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
 
+    /*
+    address vrfCoordinatorV2, mock
+    uint64 subscriptionId,
+    bytes32 keyHash,
+    uint32 callbackGasLimit,
+    string[3] memory dogTokenUris, ???
+    uint256 mintFee
+    */
+
     let vrfCoordinatorV2Address, vrfCoordinatorV2Mock, subscriptionId
 
     if (developmentChains.includes(network.name)) {
@@ -54,14 +63,7 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
         tokenUris = await handleTokenUris()
     }
 
-    /*
-    address vrfCoordinatorV2, mock
-    uint64 subscriptionId,
-    bytes32 keyHash,
-    uint32 callbackGasLimit,
-    string[3] memory dogTokenUris, ???
-    uint256 mintFee
-    */
+    log("---------------------------------")
     const args = [
         vrfCoordinatorV2Address,
         subscriptionId,
@@ -71,7 +73,6 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
         mintFee,
     ]
 
-    log("---------------------------------")
     const randomIpfsNft = await deploy("RandomIpfsNft", {
         from: deployer,
         args: args,
