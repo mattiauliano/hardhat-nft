@@ -1,9 +1,27 @@
 const { network } = require("hardhat")
 const { developmentChains, networkConfig } = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
+const { storeImages, storeTokenUriMetadata } = require("../utils/uploadToPinata")
 require("dotenv").config()
 
 const VRF_SUB_FUND_AMOUNT = ethers.utils.parseEther("3")
+const imagesLocation = "./images/randomNft"
+// const dogTokenUris = [
+//     "ipfs://QmaVkBn2tKmjbhphU7eyztbvSQU5EXDdqRyXZtRhSGgJGo",
+//     "ipfs://QmYQC5aGZu2PTH8XzbJrbDnvhj3gVs7ya33H9mqUNvST3d",
+//     "ipfs://QmZYmH5iDbD6v3U2ixoVAjioSzvWJszDzYdbeCLquGSpVm",
+// ]
+const metadataTemplate = {
+    name: "",
+    description: "",
+    image: "",
+    attributes: [
+        {
+            trait_type: "Cuteness",
+            value: 100,
+        },
+    ],
+}
 
 module.exports = async ({ deployments, getNamedAccounts }) => {
     const { deploy, log } = deployments
@@ -29,11 +47,6 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
     const mintFee = networkConfig[chainId]["mintFee"]
     const keyHash = networkConfig[chainId]["keyHash"]
     const callbackGasLimit = networkConfig[chainId]["callbackGasLimit"]
-    // const dogTokenUris = [
-    //     "ipfs://QmaVkBn2tKmjbhphU7eyztbvSQU5EXDdqRyXZtRhSGgJGo",
-    //     "ipfs://QmYQC5aGZu2PTH8XzbJrbDnvhj3gVs7ya33H9mqUNvST3d",
-    //     "ipfs://QmZYmH5iDbD6v3U2ixoVAjioSzvWJszDzYdbeCLquGSpVm",
-    // ]
 
     // If you don't want hardcode tokenURIs, you can do it programmatically
     let tokenUris
@@ -54,7 +67,7 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
         subscriptionId,
         keyHash,
         callbackGasLimit,
-        dogTokenUris,
+        tokenUris,
         mintFee,
     ]
 
@@ -77,7 +90,25 @@ const handleTokenUris = async () => {
     tokenUris = []
     // Store the image in IPFS
     // Store the metadata in IPFS
+    const { responses: imageUploadResponses, files } = await storeImages(imagesLocation)
+    for (imageUploadResponseIndex in imageUploadResponses) {
+        // Create a metadata
+        let tokenUriMetadata = { ...metadataTemplate }
+        // Name = pug.png --> pug
+        tokenUriMetadata.name = files[imageUploadResponseIndex].replace(".png", "")
+        tokenUriMetadata.description = `An adorable ${tokenUriMetadata.name} pup!`
+        // storeImages returns an object with the ipfsHash
+        tokenUriMetadata.image = `ipfs://${imageUploadResponses[imageUploadResponseIndex].ipfsHash}`
+        console.log(`Uploading ${tokenUriMetadata.name}...`)
+
+        // Upload the metadata
+        const metadataUploadResponse = await storeTokenUriMetadata(tokenUriMetadata)
+        tokenUris.push(`ipfs://${metadataUploadResponse.ipfsHash}`)
+    }
+
+    console.log("Token URIs Uploaded! They are:")
+    console.log(tokenUris)
     return tokenUris
 }
 
-module.exports.tags = ["all", "randomIpfsNft"]
+module.exports.tags = ["all", "randomIpfsNft", "main"]
