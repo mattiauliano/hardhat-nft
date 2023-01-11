@@ -101,5 +101,26 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
               })
           })
 
-          describe("getBreedFromModdedRange", () => {})
+          describe("getBreedFromModdedRange", () => {
+              it("should return pug if moddedRng < 10", async () => {
+                  const expectedValue = await randomIpfsNft.getBreedFromModdedRange(6)
+                  assert.equal(0, expectedValue)
+              })
+
+              it("should return shiba-inu if moddedRng is between 10 - 39", async () => {
+                  const expectedValue = await randomIpfsNft.getBreedFromModdedRange(15)
+                  assert.equal(1, expectedValue)
+              })
+
+              it("should return pug if moddedRng is between 40 - 99", async () => {
+                  const expectedValue = await randomIpfsNft.getBreedFromModdedRange(80)
+                  assert.equal(2, expectedValue)
+              })
+
+              it("should revert if moddedRng > 99", async () => {
+                  await expect(
+                      randomIpfsNft.getBreedFromModdedRange(100)
+                  ).to.be.revertedWithCustomError(randomIpfsNft, "RandomIpfsNft__RangeOutOfBounds")
+              })
+          })
       })
