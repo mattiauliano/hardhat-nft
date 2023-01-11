@@ -6,11 +6,12 @@ require("dotenv").config()
 
 const VRF_SUB_FUND_AMOUNT = ethers.utils.parseEther("3")
 const imagesLocation = "./images/randomNft"
-// const dogTokenUris = [
-//     "ipfs://QmaVkBn2tKmjbhphU7eyztbvSQU5EXDdqRyXZtRhSGgJGo",
-//     "ipfs://QmYQC5aGZu2PTH8XzbJrbDnvhj3gVs7ya33H9mqUNvST3d",
-//     "ipfs://QmZYmH5iDbD6v3U2ixoVAjioSzvWJszDzYdbeCLquGSpVm",
-// ]
+// Hardcode once programmatically uploaded
+let tokenUris = [
+    "ipfs://QmS7NJzGFVgGshAkWZUGRL11ZuEngwwasxzKnQ6XBCEVK7",
+    "ipfs://QmcaSdTzg9Di6X3Y4912nu6cuGTbnxhqJwNQeuRmbPwbxi",
+    "ipfs://QmeXm8uufPNDoY5b9s61GUkaTZfyDyPmJuYtdmvDpcmVTY",
+]
 const metadataTemplate = {
     name: "",
     description: "",
@@ -57,13 +58,12 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
     const keyHash = networkConfig[chainId]["keyHash"]
     const callbackGasLimit = networkConfig[chainId]["callbackGasLimit"]
 
-    // If you don't want hardcode tokenURIs, you can do it programmatically
-    let tokenUris
+    // Only when upload_to_pinata is true and upload for the first time, you can do it programmatically
+    // Once you uploaded files you must hardcode the uris... sad discovery
     if (process.env.UPLOAD_TO_PINATA == "true") {
         tokenUris = await handleTokenUris()
     }
 
-    log("---------------------------------")
     const args = [
         vrfCoordinatorV2Address,
         subscriptionId,
