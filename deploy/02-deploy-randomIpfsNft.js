@@ -80,6 +80,13 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
         waitConfirmations: network.config.blockConfirmations || 1,
     })
 
+    // Add Consumer to the subscriptionId
+    if (developmentChains.includes(network.name)) {
+        await vrfCoordinatorV2Mock.addConsumer(subscriptionId, randomIpfsNft.address)
+
+        log("Consumer is added")
+    }
+
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("Verifying...")
         await verify(randomIpfsNft.address, args)
