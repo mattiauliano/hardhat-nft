@@ -89,7 +89,17 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
               })
           })
 
-          describe("withdraw", () => {})
+          describe("withdraw", () => {
+              it("should resets the contract balance if the owner withdraw", async () => {
+                  const mintFee = await randomIpfsNft.getMintFee()
+                  await randomIpfsNft.requestNft({ value: mintFee.toString() })
+                  // Withdraw
+                  await randomIpfsNft.withdraw()
+                  const contractBalance = await ethers.provider.getBalance(randomIpfsNft.address)
+
+                  assert.equal(contractBalance.toString(), "0")
+              })
+          })
 
           describe("getBreedFromModdedRange", () => {})
       })
