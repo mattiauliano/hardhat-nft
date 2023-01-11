@@ -19,6 +19,13 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
           })
 
           describe("constructor", () => {
+              it("sets starting values correctly", async function () {
+                  const dogTokenUriZero = await randomIpfsNft.getDogTokenUris(0)
+                  const isInitialized = await randomIpfsNft.getInitialized()
+                  assert(dogTokenUriZero.includes("ipfs://"))
+                  assert.equal(isInitialized, true)
+              })
+
               it("sets mintFee correctly", async () => {
                   const mintFee = await randomIpfsNft.getMintFee()
                   assert.equal(mintFee.toString(), networkConfig[chainId]["mintFee"])
