@@ -48,7 +48,46 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
               })
           })
 
-          describe("fulfillRandomWords", () => {})
+          describe("fulfillRandomWords", () => {
+              it("mints NFT after random number id returned", async () => {
+                  await new Promise(async (resolve, reject) => {
+                      // Once emit the event do...
+                      randomIpfsNft.once("NftMinted", async () => {
+                          try {
+                              // Token with an ID of "0"
+                              const tokenUri = await randomIpfsNft.tokenURI("0")
+                              const tokenCounter = await randomIpfsNft.getTokenCounter()
+
+                              assert.equal(tokenUri.toString().includes("ipfs://"), true)
+                              assert.equal(tokenCounter.toString(), "1")
+                              resolve()
+                          } catch (error) {
+                              console.log(error)
+                              reject(error)
+                          }
+                      })
+
+                      // Code to trigger emit
+                      try {
+                          // Send a request
+                          const mintFee = await randomIpfsNft.getMintFee()
+                          const requestNftResponse = await randomIpfsNft.requestNft({
+                              value: mintFee.toString(),
+                          })
+
+                          // Fulfill random words, get access to requestId
+                          const requestNftReceipt = await requestNftResponse.wait(1)
+                          await vrfCoordinatorV2Mock.fulfillRandomWords(
+                              requestNftReceipt.events[1].args.requestId,
+                              randomIpfsNft.address
+                          )
+                      } catch (error) {
+                          console.log(error)
+                          reject(error)
+                      }
+                  })
+              })
+          })
 
           describe("withdraw", () => {})
 
