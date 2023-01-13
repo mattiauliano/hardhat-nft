@@ -42,3 +42,5 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
         await verify(dynamicSvgNft.address, arguments)
     }
 }
+
+module.exports.tags = ["all", "dynamicSvgNft", "main"]
